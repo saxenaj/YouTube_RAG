@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Ollama service for LLM
+  ollama:
+    image: ollama/ollama:latest
+    container_name: youtube-rag-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    # Uncomment for GPU support
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # Main application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: youtube-rag-app
+    depends_on:
+      - ollama
+    volumes:
+      - ./data:/app/data
+      - ./app:/app/app
+    ports:
+      - "8000:8000"  # FastAPI
+      - "8501:8501"  # Streamlit
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - WHISPER_MODEL=base
+      - WHISPER_DEVICE=cpu
+      - EMBEDDING_MODEL=all-MiniLM-L6-v2
+      - LLM_MODEL=llama3.1:8b
+    restart: unless-stopped
+    command: >
+      sh -c "
+        echo 'Waiting for Ollama to be ready...' &&
+        sleep 10 &&
+        echo 'Pulling LLM model...' &&
+        curl http://ollama:11434/api/pull -d '{\"name\": \"llama3.1:8b\"}' &&
+        echo 'Starting FastAPI server...' &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+        echo 'Starting Streamlit...' &&
+        streamlit run streamlit_app.py --server.port 8501 --server.address 0.0.0.0
+      "
+
+volumes:
+  ollama_data:
+    driver: local
