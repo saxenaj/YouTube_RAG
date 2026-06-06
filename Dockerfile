@@ -7,6 +7,14 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     curl \
+    build-essential \
+    gcc \
+    pkg-config \
+    libavformat-dev \
+    libavcodec-dev \
+    libavdevice-dev \
+    libswresample-dev \
+    libavfilter-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first (for caching)

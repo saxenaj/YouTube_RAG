@@ -1,4 +1,4 @@
-from faster_whisper import WhisperModel
+import whisper
 from typing import List
 from app.config import settings
 from app.models.schemas import TranscriptSegment
@@ -11,18 +11,13 @@ class TranscriptionService:
     def __init__(self):
         self.model = None
         self.model_size = settings.WHISPER_MODEL
-        self.device = settings.WHISPER_DEVICE
         self._load_model()
     
     def _load_model(self):
-        """Load Whisper model (lazy loading)"""
+        """Load Whisper model"""
         if self.model is None:
-            logger.info(f"Loading Whisper model: {self.model_size} on {self.device}")
-            self.model = WhisperModel(
-                self.model_size,
-                device=self.device,
-                compute_type="int8" if self.device == "cpu" else "float16"
-            )
+            logger.info(f"Loading Whisper model: {self.model_size}")
+            self.model = whisper.load_model(self.model_size)
             logger.info("Whisper model loaded successfully")
     
     async def transcribe(self, audio_path: str) -> List[TranscriptSegment]:
@@ -33,30 +28,23 @@ class TranscriptionService:
         logger.info(f"Starting transcription for: {audio_path}")
         
         try:
-            # Transcribe with word-level timestamps
-            segments, info = self.model.transcribe(
+            # Transcribe with timestamps
+            result = self.model.transcribe(
                 audio_path,
-                beam_size=5,
-                word_timestamps=False,  # Set to True for word-level
-                vad_filter=True,  # Voice activity detection
-                vad_parameters=dict(
-                    min_silence_duration_ms=500
-                )
+                language="en",
+                verbose=False
             )
             
-            logger.info(
-                f"Detected language: {info.language} "
-                f"(probability: {info.language_probability:.2f})"
-            )
+            logger.info(f"Detected language: {result.get('language', 'unknown')}")
             
             # Convert to TranscriptSegment objects
             transcript_segments = []
-            for segment in segments:
+            for segment in result['segments']:
                 transcript_segments.append(
                     TranscriptSegment(
-                        text=segment.text.strip(),
-                        start=segment.start,
-                        end=segment.end
+                        text=segment['text'].strip(),
+                        start=segment['start'],
+                        end=segment['end']
                     )
                 )
             
