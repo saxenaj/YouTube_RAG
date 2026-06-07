@@ -70,7 +70,6 @@ open http://localhost:8501
 
 Build the image yourself from source code:
 
-```bash
 
 ### 1. Clone the Repository
 
