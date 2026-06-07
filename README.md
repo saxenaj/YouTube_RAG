@@ -42,6 +42,36 @@ User Input → Download (yt-dlp) → Transcribe (Whisper)
 
 ## 🚀 Quick Start
 
+### 🐳 Option 1: Docker Pull (Fastest - Recommended)
+
+No build required! Pull the pre-built image directly:
+
+```bash
+# Step 1: Pull the pre-built image
+docker pull jatins08/youtube-rag:1.0
+
+# Step 2: Pull Ollama image
+docker pull ollama/ollama:latest
+
+# Step 3: Clone repo (only for docker-compose.yml)
+git clone https://github.com/saxenaj/YouTube_RAG.git
+cd YouTube_RAG
+
+# Step 4: Start everything
+docker-compose up -d
+
+# Step 5: Open browser
+open http://localhost:8501
+```
+
+---
+
+### 🔨 Option 2: Build from Source
+
+Build the image yourself from source code:
+
+```bash
+
 ### 1. Clone the Repository
 
 ```bash
