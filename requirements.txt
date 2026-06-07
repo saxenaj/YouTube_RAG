@@ -5,7 +5,8 @@ pydantic==2.5.0
 pydantic-settings==2.1.0
 
 # YouTube downloading
-yt-dlp==2023.11.16
+#yt-dlp==2023.11.16
+yt-dlp==2026.3.17
 
 # Transcription - Use stable pre-built version
 openai-whisper==20240930

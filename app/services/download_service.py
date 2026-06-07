@@ -68,15 +68,14 @@ class DownloadService:
         
         ydl_opts = {
             'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-            'outtmpl': str(self.audio_dir / f'{video_id}.%(ext)s'),
+            "outtmpl": output_path,
             'quiet': False,
-            'no_warnings': False,
-            'extract_flat': False,
+            "noplaylist": True,
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["default", "android"]
+                }
+            },
         }
         
         try:
